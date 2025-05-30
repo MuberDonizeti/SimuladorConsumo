@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulador de Consumo Dinâmico</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+    select, input, label { display: block; margin: 10px 0 5px; padding: 6px; }
+    .resultado { margin-top: 20px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 0 5px #ccc; }
+  </style>
+</head>
+<body>
+
+<h1>⚡ Simulador de Consumo Dinâmico</h1>
+
+<label>Fabricante do Processador:</label>
+<select id="fabricanteCpu">
+  <option value="intel">Intel</option>
+  <option value="amd">AMD</option>
+</select>
+
+<label>Processador:</label>
+<select id="cpu"></select>
+
+<label>Fabricante da GPU:</label>
+<select id="fabricanteGpu">
+  <option value="nvidia">NVIDIA</option>
+</select>
+
+<label>Placa de vídeo:</label>
+<select id="gpu"></select>
+
+<label>Horas Idle:</label>
+<input type="number" id="idle" value="0" step="0.1">
+
+<label>Horas Moderado:</label>
+<input type="number" id="moderado" value="0" step="0.1">
+
+<label>Horas Pesado:</label>
+<input type="number" id="pesado" value="0" step="0.1">
+
+<label>Preço do kWh (R$):</label>
+<input type="number" id="preco_kwh" value="0.90" step="0.01">
+
+<div class="resultado" id="resultado"></div>
+
+<script>
+const cpus = {
+  intel: [
+    { nome: 'Xeon E5-2640 v3 (90W)', tdp: 90 },
+    { nome: 'Xeon E5-2680 v4 (120W)', tdp: 120 },
+    { nome: 'i3-10100F (65W)', tdp: 65 },
+    { nome: 'i7-10700K (125W)', tdp: 125 }
+  ],
+  amd: [
+    { nome: 'Ryzen 5 3600 (65W)', tdp: 65 },
+    { nome: 'Ryzen 5 5600X (65W)', tdp: 65 },
+    { nome: 'Ryzen 9 5900X (105W)', tdp: 105 },
+    { nome: 'Ryzen 7 5800X3D (105W)', tdp: 105 }
+  ]
+};
+
+const gpus = {
+  nvidia: [
+    { nome: 'GTX 1050 Ti (75W)', tdp: 75 },
+    { nome: 'RTX 2060 Super (175W)', tdp: 175 },
+    { nome: 'RTX 3060 Ti (220W)', tdp: 220 },
+    { nome: 'RTX 5060 (180W)', tdp: 180 },
+    { nome: 'RTX 4070 Ti (285W)', tdp: 285 },
+    { nome: 'RTX 4090 (450W)', tdp: 450 }
+  ]
+};
+
+function carregarCpus() {
+  const fabricante = document.getElementById('fabricanteCpu').value;
+  const cpuSelect = document.getElementById('cpu');
+  cpuSelect.innerHTML = '';
+  cpus[fabricante].forEach(cpu => {
+    const option = document.createElement('option');
+    option.value = cpu.tdp;
+    option.textContent = cpu.nome;
+    cpuSelect.appendChild(option);
+  });
+  calcular();
+}
+
+function carregarGpus() {
+  const fabricante = document.getElementById('fabricanteGpu').value;
+  const gpuSelect = document.getElementById('gpu');
+  gpuSelect.innerHTML = '';
+  gpus[fabricante].forEach(gpu => {
+    const option = document.createElement('option');
+    option.value = gpu.tdp;
+    option.textContent = gpu.nome;
+    gpuSelect.appendChild(option);
+  });
+  calcular();
+}
+
+function calcular() {
+  let cpu = parseFloat(document.getElementById("cpu").value) || 0;
+  let gpu = parseFloat(document.getElementById("gpu").value) || 0;
+  let idle = parseFloat(document.getElementById("idle").value) || 0;
+  let moderado = parseFloat(document.getElementById("moderado").value) || 0;
+  let pesado = parseFloat(document.getElementById("pesado").value) || 0;
+  let preco_kwh = parseFloat(document.getElementById("preco_kwh").value) || 0;
+
+  let outros = 50;
+
+  let consumo_idle = (cpu * 0.3 + outros * 0.3 + gpu * 0.1) / 1000;
+  let consumo_moderado = (cpu * 0.6 + outros * 0.6 + gpu * 0.5) / 1000;
+  let consumo_pesado = (cpu + outros + gpu) / 1000;
+
+  let gasto_dia = (idle * consumo_idle + moderado * consumo_moderado + pesado * consumo_pesado) * preco_kwh;
+  let gasto_mes = gasto_dia * 30;
+
+  document.getElementById("resultado").innerHTML = `
+    <strong>Idle:</strong> ${(consumo_idle * 1000).toFixed(0)}W<br>
+    <strong>Moderado:</strong> ${(consumo_moderado * 1000).toFixed(0)}W<br>
+    <strong>Pesado:</strong> ${(consumo_pesado * 1000).toFixed(0)}W<br><br>
+    <strong>Gasto diário:</strong> R$ ${gasto_dia.toFixed(2)}<br>
+    <strong>Gasto mensal:</strong> R$ ${gasto_mes.toFixed(2)}
+  `;
+}
+
+carregarCpus();
+carregarGpus();
+</script>
+
+</body>
+</html>
