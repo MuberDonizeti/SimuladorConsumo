@@ -98,6 +98,8 @@
 <label>Preço do kWh (R$):</label>
 <input type="number" id="preco_kwh" value="0.90" step="0.01">
 
+<button id="btnCalcular" style="margin-top: 20px; padding: 12px 20px; background-color: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1em; width: 100%;">Calcular</button>
+
 <div class="resultado" id="resultado"></div>
 
 <script>
@@ -201,8 +203,21 @@ function calcular() {
   `;
 }
 
-carregarCpus();
-carregarGpus();
+window.onload = function() {
+  carregarCpus();
+  carregarGpus();
+
+  // Adiciona event listeners para recalcular quando os valores mudam
+  document.getElementById('cpu').addEventListener('change', calcular);
+  document.getElementById('cpu_custom_tdp').addEventListener('input', calcular);
+  document.getElementById('gpu').addEventListener('change', calcular);
+  document.getElementById('gpu_custom_tdp').addEventListener('input', calcular);
+  document.getElementById('idle').addEventListener('input', calcular);
+  document.getElementById('moderado').addEventListener('input', calcular);
+  document.getElementById('pesado').addEventListener('input', calcular);
+  document.getElementById('preco_kwh').addEventListener('input', calcular);
+  document.getElementById('btnCalcular').addEventListener('click', calcular); // Adiciona listener para o botão
+};
 </script>
 </div>
 </body>
